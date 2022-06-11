@@ -1,18 +1,22 @@
+#Author: Alexander Sutter
+#Date: June 10, 2022
+#Latest update: June 11, 2022
+
+#imports
 import turtle as t
 import logging as log
 
 def initBoard():
     board = [ #columns=7 rows=6
-        [' ', ' ', ' ', ' ', ' ', ' ', ' '], #row=0
-        [' ', ' ', ' ', ' ', ' ', ' ', ' '], #row=1
-        [' ', ' ', ' ', ' ', ' ', ' ', ' '], #row=2
-        [' ', ' ', ' ', ' ', ' ', ' ', ' '], #row=3
-        [' ', ' ', ' ', ' ', ' ', ' ', ' '], #row=4
-        [' ', ' ', ' ', ' ', ' ', ' ', ' '] #row=5
+        ['  ', '  ', '  ', '  ', '  ', '  ', '  '], #row=0
+        ['  ', '  ', '  ', '  ', '  ', '  ', '  '], #row=1
+        ['  ', '  ', '  ', '  ', '  ', '  ', '  '], #row=2
+        ['  ', '  ', '  ', '  ', '  ', '  ', '  '], #row=3
+        ['  ', '  ', '  ', '  ', '  ', '  ', '  '], #row=4
+        ['  ', '  ', '  ', '  ', '  ', '  ', '  '] #row=5
     ]#end board list
 
     return board
-#end initBoard
 
 def initTurtle():
     t.penup()
@@ -67,24 +71,21 @@ def checkWinner(board, player):
     #end for row loop
 
     return False
-#end checkWinner
 
 def placePiece(board, player, col):
     #for loop to put piece in column
     for row in range(6):
-        if row == 5 and board[row][col] == ' ': #if last row
+        if row == 5 and board[row][col] == '  ': #if last row
             board[row][col] = player
             break
     
-        if board[row][col] == ' ': #check next
-            if(board[row+1][col] != ' '): #check if column full
+        if board[row][col] == '  ': #check next
+            if(board[row+1][col] != '  '): #check if column full
                 board[row][col] = player
     
-    displayBoards(board)
     return board
-#end placePiece
 
-def rectangle(width, height, center):
+def rectangle(width, height, center, color="white"):
     log.debug("rectangle(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
 
     t.penup()
@@ -100,6 +101,9 @@ def rectangle(width, height, center):
     t.seth(0)
 
     #draw rectangle
+    t.begin_fill()
+    t.color('black', color)
+    
     t.pendown()
     for i in range(2):
         t.fd(width)
@@ -107,6 +111,9 @@ def rectangle(width, height, center):
         t.fd(height)
         t.rt(90)
     
+    t.end_fill()
+
+    #log function info
     log.debug("top right = " + str(t.pos()))
     log.info("center = " + str(center))
 
@@ -189,6 +196,50 @@ def drawGrid(width, height, center):
             fb(width)
         t.rt(90)
 
+def circle(radius, color = "white"):
+    t.pendown()
+    t.begin_fill()
+    t.color('black', color)
+    t.circle(radius)
+    t.end_fill()
+    t.penup()
+    t.color('black')
+
+def drawCircles(width, height, center):
+    t.penup()
+    t.seth(0) #face right
+
+    columns = 7
+    rows = 6
+
+    def getCircleStartPoints(width, height, center):
+        columns = 7
+        rows = 6
+        topLeft = ((center[0] - width/2), (center[1] + height/2))
+        topLeftSpotBottom = ((topLeft[0] + width/14), (topLeft[1] - height/6 + height/100))
+        t.goto(topLeftSpotBottom)
+        circlePos = []
+
+        for row in range(rows):
+            rowPositions = []
+            for col in range(columns):
+                spot = (topLeftSpotBottom[0] + (col * (width/columns))), (topLeftSpotBottom[1] - (row * (height/rows)))
+                rowPositions.append(spot)
+            circlePos.append(rowPositions)
+        
+        return circlePos
+
+    circlePoints = getCircleStartPoints(width, height, center)
+
+    #draw starting circles
+    for row in range(rows):
+        for col in range(columns):
+            spot = circlePoints[row][col]
+            t.goto(spot)
+            circle(height/14, 'white') # height / rows - littleBit
+    
+    return circlePoints
+
 def drawBoard():
     #test normal
     width = 500
@@ -206,17 +257,19 @@ def drawBoard():
 
     log.debug("drawBoard(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
 
-    rectangle(width, height, center) #outline of main board
+    rectangle(width, height, center, 'light blue') #outline of main board
     makeLegs(boardWidth=width, boardHeight=height, boardCenter=center)
     drawGrid(width, height, center)
+    circlePoints = drawCircles(width, height, center)
+
+    return circlePoints
 
 def displayBoards(board):
     turtleprintBoard(board)
     terminalPrintBoard(board)
 
 def turtleprintBoard(board):
-    print("hi")
-    drawBoard()
+    piecePositions = drawBoard()
 
 def terminalPrintBoard(board):
     for row in range(6):
@@ -233,17 +286,17 @@ def terminalPrintBoard(board):
             print("]", end="")
     #end for row loop
 
-    print("-----------------------------")
-    print("| 0 | 1 | 2 | 3 | 4 | 5 | 6 |")
-    print("-----------------------------")
-    print(" |                         | ")
-    print("/ \\                       / \\ \n")
-#end printBoard(board)
+    print("------------------------------------")
+    print("| 00 | 01 | 02 | 03 | 04 | 05 | 06 |")
+    print("------------------------------------")
+    print(" |                              | ")
+    print("/ \\                            / \\ \n")
 
 def playGame(board):
     displayBoards(board)
-
-    turn = 'g' #either g->green, a->azul
+    player1 = '🔴'
+    player2 = '🟡'
+    turn = player1 #either 🔴 or 🟡
     winner = False
     while not winner:
         #user choose column 
@@ -259,26 +312,23 @@ def playGame(board):
             print("\n\nWINNNER\n\n")
         
         #switch whos turn it is
-        if turn == 'g':
-            turn = 'a'
+        if turn == player1:
+            turn = player2
         #end if statement
         else:
-            turn = 'g'
-        #end else statement
-    #end while loop
+            turn = player1
 
 def main():
     log.basicConfig(level=log.DEBUG, filename="main.log", filemode='w')
+
     initTurtle()
     board = initBoard()
     
-    print("Welcome to Connect 4 python edition! To win you have to well... connect 4 spaces in any direction")
+    print("\n\nWelcome to Connect 4 python edition! To win you have to well... connect 4 spaces in any direction")
     
-    turtleprintBoard(board)
-    # playGame()
+    playGame(board)
     
-    done = input("close game")
+    # done = input("close game")
     t.done()
-
 
 main()
