@@ -1,0 +1,4 @@
+just did : grid
+next : circles for pieces to go into
+
+bigger picture in progress: draw board with turtle

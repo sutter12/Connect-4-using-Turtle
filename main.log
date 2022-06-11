@@ -1,0 +1,5 @@
+DEBUG:root:drawBoard(500, 250, (0, 0))
+DEBUG:root:rectangle(500, 250, (0, 0))
+DEBUG:root:top right = (-250.00,125.00)
+INFO:root:center = (0, 0)
+DEBUG:root:makeLegs(500, 250, (0, 0))
