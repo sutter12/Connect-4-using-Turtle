@@ -22,69 +22,6 @@ def initTurtle():
     t.penup()
     t.speed(0)
 
-def checkWinner(board, player):
-    #check horizontal winners
-    for row in range(6):
-        for col in range(3):
-            if(board[row][col] == player and 
-                board[row][col+1] == player and
-                board[row][col+2] == player and
-                board[row][col+3] == player):
-                return True
-            #end if statement
-        #end for col loop
-    #end for row loop
-
-    #check vertical winners
-    for col in range(7):
-        for row in range(3):
-            if(board[row][col] == player and 
-                board[row+1][col] == player and
-                board[row+2][col] == player and
-                board[row+3][col] == player):
-                return True
-            #end if statement
-        #end for col loop
-    #end for row loop
-
-    #check diagonal winner
-    for row in range(3):
-        for col in range(4):
-            if(board[row][col] == player and
-                board[row+1][col+1] == player and
-                board[row+2][col+2] == player and
-                board[row+3][col+3] == player):
-                return True
-            #end if statement
-        #end for col loop
-    #end for row loop
-
-    for row in range(3):
-        for col in range(6):
-            if(board[row][col] == player and
-                board[row+1][col-1] == player and
-                board[row+2][col-2] == player and
-                board[row+3][col-3] == player):
-                return True
-            #end if statement
-        #end for col loop
-    #end for row loop
-
-    return False
-
-def placePiece(board, player, col):
-    #for loop to put piece in column
-    for row in range(6):
-        if row == 5 and board[row][col] == '  ': #if last row
-            board[row][col] = player
-            break
-    
-        if board[row][col] == '  ': #check next
-            if(board[row+1][col] != '  '): #check if column full
-                board[row][col] = player
-    
-    return board
-
 def rectangle(width, height, center, color="white"):
     log.debug("rectangle(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
 
@@ -117,7 +54,7 @@ def rectangle(width, height, center, color="white"):
     log.debug("top right = " + str(t.pos()))
     log.info("center = " + str(center))
 
-def fb(distance):
+def fb(distance): #forwards then back the same distance
     t.fd(distance)
     t.bk(distance)
 
@@ -227,7 +164,7 @@ def drawCircles(width, height, center):
                 rowPositions.append(spot)
             circlePos.append(rowPositions)
         
-        return circlePos
+        return circlePos #2d list of the positions to place circles
 
     circlePoints = getCircleStartPoints(width, height, center)
 
@@ -240,19 +177,7 @@ def drawCircles(width, height, center):
     
     return circlePoints
 
-def drawBoard():
-    #test normal
-    width = 500
-    height = 250
-
-    #test small
-    # width = 100
-    # height = 50
-
-    #test large
-    # width = 1000
-    # height = 500
-
+def drawBoard(width, height):
     center = (0, 0) #must be a tuple
 
     log.debug("drawBoard(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
@@ -264,12 +189,11 @@ def drawBoard():
 
     return circlePoints
 
-def displayBoards(board):
-    turtleprintBoard(board)
+def initBoards(board, width, height):
+    piecePositions = drawBoard(width, height)
     terminalPrintBoard(board)
-
-def turtleprintBoard(board):
-    piecePositions = drawBoard()
+    
+    return piecePositions
 
 def terminalPrintBoard(board):
     for row in range(6):
@@ -292,8 +216,95 @@ def terminalPrintBoard(board):
     print(" |                              | ")
     print("/ \\                            / \\ \n")
 
+def checkWinner(board, player):
+    #check horizontal winners
+    for row in range(6):
+        for col in range(3):
+            if(board[row][col] == player and 
+                board[row][col+1] == player and
+                board[row][col+2] == player and
+                board[row][col+3] == player):
+                return True
+            #end if statement
+        #end for col loop
+    #end for row loop
+
+    #check vertical winners
+    for col in range(7):
+        for row in range(3):
+            if(board[row][col] == player and 
+                board[row+1][col] == player and
+                board[row+2][col] == player and
+                board[row+3][col] == player):
+                return True
+            #end if statement
+        #end for col loop
+    #end for row loop
+
+    #check diagonal winner
+    for row in range(3):
+        for col in range(4):
+            if(board[row][col] == player and
+                board[row+1][col+1] == player and
+                board[row+2][col+2] == player and
+                board[row+3][col+3] == player):
+                return True
+            #end if statement
+        #end for col loop
+    #end for row loop
+
+    for row in range(3):
+        for col in range(6):
+            if(board[row][col] == player and
+                board[row+1][col-1] == player and
+                board[row+2][col-2] == player and
+                board[row+3][col-3] == player):
+                return True
+            #end if statement
+        #end for col loop
+    #end for row loop
+
+    return False
+
+def placePiece(board, player, col, piecePositions, radius):
+    #for loop to put piece in column
+    for row in range(6):
+        if row == 5 and board[row][col] == '  ': #if last row
+            board[row][col] = player
+            turtlePlacePiece(piecePositions[row][col], player, radius)
+            break
+    
+        if board[row][col] == '  ': #check next
+            if(board[row+1][col] != '  '): #check if column full
+                board[row][col] = player
+                turtlePlacePiece(piecePositions[row][col], player, radius)
+    
+    return board
+
+def turtlePlacePiece(pos, player, radius):
+    t.penup()
+    
+    t.goto(pos)
+    
+    if player == '🔴':
+        circle(radius, 'red')
+    elif player == '🟡':
+        circle(radius, 'yellow')
+
 def playGame(board):
-    displayBoards(board)
+    #test normal
+    width = 500
+    height = 250
+    radius = height / 14
+
+    #test small
+    # width = 100
+    # height = 50
+
+    #test large
+    # width = 1000
+    # height = 500
+    piecePositions = initBoards(board, width, height)
     player1 = '🔴'
     player2 = '🟡'
     turn = player1 #either 🔴 or 🟡
@@ -304,9 +315,11 @@ def playGame(board):
         userInput = input()
         col = int(userInput) #between 0-6
 
-        placePiece(board, turn, col)
+        # board = placePiece(board, turn, col)
+        board = placePiece(board, turn, col, piecePositions, radius)
+        # turtlePlacePiece(board, turn, col, piecePositions)
+        terminalPrintBoard(board)        
         
-        displayBoards(board)
         winner = checkWinner(board, turn)
         if winner:
             print("\n\nWINNNER\n\n")
@@ -325,7 +338,7 @@ def main():
     board = initBoard()
     
     print("\n\nWelcome to Connect 4 python edition! To win you have to well... connect 4 spaces in any direction")
-    
+        
     playGame(board)
     
     # done = input("close game")
