@@ -6,6 +6,9 @@
 import turtle as t
 import logging as log
 
+global width
+global height
+
 def initBoard():
     board = [ #columns=7 rows=6
         ['  ', '  ', '  ', '  ', '  ', '  ', '  '], #row=0
@@ -22,8 +25,8 @@ def initTurtle():
     t.penup()
     t.speed(0)
 
-def rectangle(width, height, center, color="white"):
-    log.debug("rectangle(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
+def drawRectangle(width, height, center, color="white"):
+    log.debug("drawRectangle(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
 
     t.penup()
     # t.speed(5)
@@ -133,7 +136,7 @@ def drawGrid(width, height, center):
             fb(width)
         t.rt(90)
 
-def circle(radius, color = "white"):
+def drawCircle(radius, color = "white"):
     t.pendown()
     t.begin_fill()
     t.color('black', color)
@@ -173,7 +176,7 @@ def drawCircles(width, height, center):
         for col in range(columns):
             spot = circlePoints[row][col]
             t.goto(spot)
-            circle(height/14, 'white') # height / rows - littleBit
+            drawCircle(height/14, 'white') # height / rows - littleBit
     
     return circlePoints
 
@@ -182,12 +185,31 @@ def drawBoard(width, height):
 
     log.debug("drawBoard(" + str(width) + ", " + str(height) + ", " + str(center) + ")")
 
-    rectangle(width, height, center, 'light blue') #outline of main board
+    drawRectangle(width, height, center, 'light blue') #outline of main board
     makeLegs(boardWidth=width, boardHeight=height, boardCenter=center)
     drawGrid(width, height, center)
     circlePoints = drawCircles(width, height, center)
 
     return circlePoints
+
+def presentWinner(player):
+    global width
+    # terminal 
+    print("\n\n")
+    print("***********************\n\n")
+    print(player + " Wins!!!")
+    print("***********************\n\n")
+    print("\n\n")
+
+    #turtle
+    #goto top left
+    t.seth(90)
+    t.fd(height/2)
+    t.lt(90)
+    t.fd(width/2)
+    t.seth(0)
+
+    t.write(player + " Wins!!!", move=True, align="left", font=('Arial', 50, 'normal'))
 
 def initBoards(board, width, height):
     piecePositions = drawBoard(width, height)
@@ -287,11 +309,13 @@ def turtlePlacePiece(pos, player, radius):
     t.goto(pos)
     
     if player == '🔴':
-        circle(radius, 'red')
+        drawCircle(radius, 'red')
     elif player == '🟡':
-        circle(radius, 'yellow')
+        drawCircle(radius, 'yellow')
 
 def playGame(board):
+    global width
+    global height
     #test normal
     width = 500
     height = 250
@@ -312,6 +336,7 @@ def playGame(board):
     while not winner:
         #user choose column 
         print("Which column?")
+        t.onscreenclick(click)
         userInput = input()
         col = int(userInput) #between 0-6
 
@@ -323,13 +348,21 @@ def playGame(board):
         winner = checkWinner(board, turn)
         if winner:
             print("\n\nWINNNER\n\n")
-        
+            if turn == player1:
+                presentWinner(player1)
+            elif turn == player2:
+                presentWinner(player2)
         #switch whos turn it is
         if turn == player1:
             turn = player2
         #end if statement
         else:
             turn = player1
+
+def click(x, y):
+    t.penup()
+    t.showturtle()
+    t.goto(x, y)
 
 def main():
     log.basicConfig(level=log.DEBUG, filename="main.log", filemode='w')
@@ -340,7 +373,7 @@ def main():
     print("\n\nWelcome to Connect 4 python edition! To win you have to well... connect 4 spaces in any direction")
         
     playGame(board)
-    
+
     # done = input("close game")
     t.done()
 
