@@ -346,18 +346,19 @@ def playGame(board):
         terminalPrintBoard(board)        
         
         winner = checkWinner(board, turn)
-        if winner:
-            print("\n\nWINNNER\n\n")
-            if turn == player1:
-                presentWinner(player1)
-            elif turn == player2:
-                presentWinner(player2)
+        
         #switch whos turn it is
         if turn == player1:
             turn = player2
         #end if statement
         else:
             turn = player1
+    
+    print("\n\nWINNNER\n\n")
+    if turn == player1:
+        presentWinner(player1)
+    elif turn == player2:
+        presentWinner(player2)
 
 def click(x, y):
     t.penup()
